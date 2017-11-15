@@ -1,0 +1,66 @@
+FROM alpine:3.6
+LABEL com.oxyure.vendor="Microbiota Incorporated" \
+      maintainer="stef@oxyure.com" \
+      description="Alpine + OpenRC + sudo, /sbin/init as entrypoint"
+
+# If the root password build argument is empty a random string will be choosen.
+ARG ROOT_PASSWD=""
+ARG OPERATOR_PASSWD=""
+
+# OpenRC
+#  - remove some useless init scripts
+#  - bypass cgroups settings
+#  - modify OpenRC init script so it applies what it usally apply for OpenVZ containers
+#
+RUN apk update && apk add --no-cache openrc &&\
+    rm -f   /etc/init.d/hwdrivers \
+            /etc/init.d/hwclock \
+            /etc/init.d/hwdrivers \
+            /etc/init.d/modules \
+            /etc/init.d/modules-load \
+            /etc/init.d/modloop \
+            /etc/init.d/numlock \
+            /etc/init.d/agetty \
+    && sed -i 's/cgroup_add_service /# cgroup_add_service /g' /lib/rc/sh/openrc-run.sh \
+    && sed -i 's/VSERVER/DOCKER/Ig' /lib/rc/sh/init.sh
+
+# Add/modify some files with an external version, making them easier to customize.
+ADD files/etc/inittab /etc/inittab
+ADD files/etc/rc.conf /etc/rc.conf
+ADD files/etc/motd    /etc/motd
+
+# Set Europe/Paris for timezone.
+RUN apk add --no-cache tzdata &&\
+    cp /usr/share/zoneinfo/Europe/Paris /etc/localtime &&\
+    echo "Europe/Paris" > /etc/timezone &&\
+    apk del --purge tzdata
+
+# Add some information in the MOTD file.
+RUN sed -i -e "s/{build_date}/$(date)/" \
+           -e "s/{build_host}/$(uname -rs)/" /etc/motd
+
+# Change some passwords (do not leave them empty)
+RUN if [ -z "${ROOT_PASSWD}" ]; then echo "root:$(echo $RANDOM |sha512sum |cut -d' ' -f1)" | chpasswd; \
+        else echo "root:${ROOT_PASSWD}" | chpasswd; fi &&\
+    if [ -z "${OPERATOR_PASSWD}" ]; then echo "operator:$(echo $RANDOM |sha512sum |cut -d' ' -f1)" | chpasswd; \
+        else echo "operator:${OPERATOR_PASSWD}" | chpasswd; fi
+
+# Configure sudo: members of group "wheel" may sudo using root password. User "operator" is added to "wheel" group.
+RUN apk add --no-cache busybox-suid sudo &&\
+    sed -i -e 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers \
+           -e 's/operator:x:11:0:operator:\/root:\/bin\/sh/operator:x:11:0:operator:\/home\/operator:\/bin\/sh/' /etc/passwd &&\
+    addgroup operator && adduser operator operator && adduser operator wheel &&\
+    mkdir /home/operator && chown operator:operator /home/operator && chmod 0750 /home/operator &&\
+    echo "Defaults rootpw" >> /etc/sudoers
+
+# Modify PS1 system-wide
+RUN sed -i -e 's/export PS1=.*/export PS1="[\\T] \\u@\\H:\\w \\$ "/' /etc/profile
+
+# Remove APK indexes.
+RUN rm /var/cache/apk/APKINDEX.*.tar.gz
+
+# Run init as user root.
+WORKDIR /root
+USER root
+ENTRYPOINT ["/sbin/init"]
+
