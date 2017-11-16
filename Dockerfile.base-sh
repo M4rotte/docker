@@ -1,5 +1,5 @@
 FROM oxyure:base
-LABEL com.oxyure.vendor="Microbiota Incorporated" \
+LABEL com.oxyure.vendor="United Microbiotas" \
       maintainer="stef@oxyure.com" \
       description="Alpine + OpenRC + sudo, /bin/sh as entrypoint (user: operator)"
 
@@ -23,5 +23,5 @@ RUN if [ -z "${ROOT_PASSWD}" ]; then echo "root:$(echo $RANDOM |sha512sum |cut -
 # Run a shell as user operator.
 WORKDIR /home/operator
 USER operator
-ENTRYPOINT ["/bin/sh", "-l"]
+ENTRYPOINT ["/bin/sh"]
 

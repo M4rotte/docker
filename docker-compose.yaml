@@ -4,12 +4,15 @@
 # base-sh:    /bin/sh as entrypoint
 # mariadb:    MariaDB server, /sbin/init as entrypoint
 
-version: '2.1'
+version: '2.2'
 
 networks:
   oxyure-net:
     external:
       name: oxyure-net
+
+volumes:
+  mariadb-datadir:
 
 services:
   base:
@@ -17,8 +20,8 @@ services:
       context: .
       dockerfile: Dockerfile.base
       args:
-        ROOT_PASSWD: ""
-        OPERATOR_PASSWD: ""
+        ROOT_PASSWD: "test"
+        OPERATOR_PASSWD: "test"
     image: oxyure:base
     networks:
       oxyure-net:
@@ -29,9 +32,11 @@ services:
       context: .
       dockerfile: Dockerfile.base-sh
       args:
-        ROOT_PASSWD: "testroot"
+        ROOT_PASSWD: "test"
         OPERATOR_PASSWD: "test"
     image: oxyure:base-sh
+    stdin_open: true
+    tty: true
     networks:
       oxyure-net:
           ipv4_address: "172.30.0.3"
@@ -43,8 +48,14 @@ services:
       args:
         ROOT_PASSWD: ""
         OPERATOR_PASSWD: ""
-        MARIADB_ROOT_PASSWD: "test"
     image: oxyure:mariadb
+    # An argument is passed to the entrypoint: the MariaDB root password.
+    # ! Change it !
+    command: ["rootpass"]
     networks:
       oxyure-net:
-          ipv4_address: "172.30.0.4"
+          ipv4_address: "172.30.0.10"
+    ports:
+     - 127.0.0.1:13306:3306/tcp
+    volumes:
+     - mariadb-datadir:/var/lib/mysql

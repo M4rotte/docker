@@ -1,25 +1,11 @@
 FROM oxyure:base
-LABEL com.oxyure.vendor="Microbiota Incorporated" \
+LABEL com.oxyure.vendor="United Microbiotas" \
       maintainer="stef@oxyure.com" \
       description="Alpine + OpenRC + sudo + MariaDB"
 
 # If those two password build arguments are empty, a random string will be choosen.
 ARG ROOT_PASSWD=""
 ARG OPERATOR_PASSWD=""
-
-# Must not be blank
-ARG MARIADB_ROOT_PASSWD="mariadb"
-
-RUN apk update &&\
-    apk add mariadb mariadb-client &&\
-    mysql_install_db --user=mysql --rpm
-
-ADD scripts/set_mariadb_root_pw.sh /tmp/setdbpw.sh
-RUN chmod +x /tmp/setdbpw.sh && /tmp/setdbpw.sh ${MARIADB_ROOT_PASSWD} && rm /tmp/setdbpw.sh
-
-    
-RUN apk del --purge mariadb-client
-
 
 # Add some information in the MOTD file
 RUN sed -i -e "s/{build_date}/$(date)/" \
@@ -31,10 +17,14 @@ RUN if [ -z "${ROOT_PASSWD}" ]; then echo "root:$(echo $RANDOM |sha512sum |cut -
     if [ -z "${OPERATOR_PASSWD}" ]; then echo "operator:$(echo $RANDOM |sha512sum |cut -d' ' -f1)" | chpasswd; \
         else echo "operator:${OPERATOR_PASSWD}" | chpasswd; fi
 
-# Remove APK indexes
-RUN rm /var/cache/apk/APKINDEX.*.tar.gz
+# Install MariaDB & remove OpenRC (this image will use a custom entrypoint.sh as entrypoint).
+# Also remove sudo.
+RUN apk update && apk del --purge openrc sudo && apk add mariadb mariadb-client &&\
+    rm /var/cache/apk/APKINDEX.*.tar.gz
 
-ADD scripts/start_mariadb.sh /root/start_mariadb.sh
-RUN chmod +x /root/start_mariadb.sh
-WORKDIR /var/lib/mysql
-ENTRYPOINT ["/root/start_mariadb.sh"]
+EXPOSE 3306/tcp
+
+ADD entrypoint-mariadb.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+WORKDIR /root
+ENTRYPOINT ["/entrypoint.sh"]
