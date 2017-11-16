@@ -4,7 +4,7 @@
 # base-sh:    /bin/sh as entrypoint
 # mariadb:    MariaDB server, /sbin/init as entrypoint
 
-version: '2.2'
+version: "3.4"
 
 networks:
   oxyure-net:
@@ -22,7 +22,8 @@ services:
       args:
         ROOT_PASSWD: "test"
         OPERATOR_PASSWD: "test"
-    image: oxyure:base
+        http_proxy: "${http_proxy}"
+    image: oxyure/oxyure:base
     networks:
       oxyure-net:
           ipv4_address: "172.30.0.2"
@@ -34,7 +35,8 @@ services:
       args:
         ROOT_PASSWD: "test"
         OPERATOR_PASSWD: "test"
-    image: oxyure:base-sh
+        http_proxy: "${http_proxy}"
+    image: oxyure/oxyure:base-sh
     stdin_open: true
     tty: true
     networks:
@@ -48,7 +50,8 @@ services:
       args:
         ROOT_PASSWD: ""
         OPERATOR_PASSWD: ""
-    image: oxyure:mariadb
+        http_proxy: "${http_proxy}"
+    image: oxyure/oxyure:mariadb
     # An argument is passed to the entrypoint: the MariaDB root password.
     # ! Change it !
     command: ["rootpass"]
