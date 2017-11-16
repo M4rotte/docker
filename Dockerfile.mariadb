@@ -1,4 +1,4 @@
-FROM oxyure/oxyure:base
+FROM oxyure:base
 LABEL com.oxyure.vendor="United Microbiotas" \
       maintainer="stef@oxyure.com" \
       description="Alpine + OpenRC + sudo + MariaDB"

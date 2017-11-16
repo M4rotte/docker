@@ -23,7 +23,7 @@ services:
         ROOT_PASSWD: "test"
         OPERATOR_PASSWD: "test"
         http_proxy: "${http_proxy}"
-    image: oxyure/oxyure:base
+    image: oxyure:base
     networks:
       oxyure-net:
           ipv4_address: "172.30.0.2"
@@ -36,7 +36,7 @@ services:
         ROOT_PASSWD: "test"
         OPERATOR_PASSWD: "test"
         http_proxy: "${http_proxy}"
-    image: oxyure/oxyure:base-sh
+    image: oxyure:base-sh
     stdin_open: true
     tty: true
     networks:
@@ -51,7 +51,7 @@ services:
         ROOT_PASSWD: ""
         OPERATOR_PASSWD: ""
         http_proxy: "${http_proxy}"
-    image: oxyure/oxyure:mariadb
+    image: oxyure:mariadb
     # An argument is passed to the entrypoint: the MariaDB root password.
     # ! Change it !
     command: ["rootpass"]
