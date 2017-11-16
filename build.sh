@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Build and tag images.
+# Build images.
 
 DOCKER_HUB_ID="oxyure"
 LOCAL_REPO="oxyure"
@@ -13,8 +13,8 @@ docker image prune --force
 for service in ${SERVICES}; do
 
     echo -e "\n  ### Building image \"${service}\": \n"
-    docker-compose build --force-rm --no-cache ${service}
-    docker tag ${LOCAL_REPO}:${service} ${LOCAL_REPO}/${service}:latest
+    docker-compose build $1 $2 ${service}
+
 done
 
 echo -e "\n  ### Do some cleaning…\n"
