@@ -2,8 +2,6 @@
 
 # Build images.
 
-DOCKER_HUB_ID="oxyure"
-LOCAL_REPO="oxyure"
 SERVICES="base base-sh mariadb"
 
 echo -e "\n  ### Do some cleaning…\n"
