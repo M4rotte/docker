@@ -16,7 +16,7 @@ Based on alpine:3.6
  - sudo
  - Timezone Europe/Paris
  
-Root password may be configured at build-time. In case it is not defined during the image construction, a random password is set.
+Root password may be configured at build-time. In case it is not defined during the image construction a random password is set.
  
 ### base-sh
 
@@ -31,6 +31,10 @@ Based on oxyure/base:latest
 If /var/lib/mysql is empty the database is initiallized. You probably want to use a docker volume or a mount for this.
 
 MariaDB root password must be provided at run-time if /var/lib/mysql is not already populated. The container will exit if no password is provided.
+
+### mini
+
+This is a stripped down Alpine with a proper PID 1 process. Basically: Busybox + Tini. The size (after flattenization) is 1.42MB.
 
 ## Docker version
 

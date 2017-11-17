@@ -25,9 +25,9 @@ RUN apk update && apk add --no-cache openrc &&\
     && sed -i 's/VSERVER/DOCKER/Ig' /lib/rc/sh/init.sh
 
 # Add/modify some files with an external version, making them easier to customize.
-ADD files/etc/inittab /etc/inittab
-ADD files/etc/rc.conf /etc/rc.conf
-ADD files/etc/motd    /etc/motd
+COPY files/etc/inittab /etc/inittab
+COPY files/etc/rc.conf /etc/rc.conf
+COPY files/etc/motd    /etc/motd
 
 # Set Europe/Paris for timezone.
 RUN apk add --no-cache tzdata &&\

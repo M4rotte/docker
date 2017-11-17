@@ -24,7 +24,7 @@ RUN apk update && apk del --purge openrc sudo && apk add mariadb mariadb-client 
 
 EXPOSE 3306/tcp
 
-ADD entrypoint-mariadb.sh /entrypoint.sh
+COPY entrypoint-mariadb.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-WORKDIR /root
+WORKDIR /usr
 ENTRYPOINT ["/entrypoint.sh"]

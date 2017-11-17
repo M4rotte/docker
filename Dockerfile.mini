@@ -1,0 +1,51 @@
+FROM alpine:3.6
+LABEL com.oxyure.vendor="United Microbiotas" \
+      maintainer="stef@oxyure.com" \
+      description="Stripped down Alpine with Tini (Docker’s init) as entrypoint."
+
+# The alpine:3.6 image has root password disabled. We let the possibility to define one at build time.
+# If the following root password build argument is empty, a (long) random string will be choosen to 
+# still forbid normal users to su to root.
+ARG ROOT_PASSWD=""
+RUN if [ -z "${ROOT_PASSWD}" ]; then echo "root:$(echo $RANDOM |sha512sum |cut -d' ' -f1)" | chpasswd; \
+        else echo "root:${ROOT_PASSWD}" | chpasswd; fi &&\
+        apk update
+
+## APK installation ## ## ## ## ##
+RUN apk update
+
+
+## END APK installation ## ## ## ##
+
+# Leave only busybox (suid version), musl & tini
+# If you previously installed package(s), you probably want to keep some of the following packages…
+# We also remove some files manually as it’s impossible to do so with APK, due to unevitable dependencies.
+RUN apk del --purge alpine-baselayout &&\
+    apk add busybox-suid tini &&\
+    apk del --purge alpine-keys libressl2.5-libcrypto libressl2.5-libssl zlib apk-tools scanelf &&\
+    (rm -rf /var/cache/* /etc/* /lib/apk   \
+            /usr/bin/iconv /usr/bin/scanelf \
+            /usr/bin/getent /usr/bin/getconf \
+    || exit 0)
+
+## Custom content ## ## ## ## ## ##
+
+COPY files/etc/motd /etc/motd
+COPY files/etc/passwd /etc/passwd
+COPY files/etc/group /etc/group
+COPY files/etc/shadow /etc/shadow
+RUN chmod 0640 /etc/shadow && chown root:shadow /etc/shadow &&\
+    sed -i -e "s/{build_date}/$(date)/" \
+           -e "s/{build_host}/$(uname -rs)/" /etc/motd
+
+COPY files/etc/profile /etc/profile
+
+## END Custom content ## ## ## ## ##
+
+# Run tini as root
+WORKDIR /
+USER root
+ENTRYPOINT ["/sbin/tini","/bin/su","-l","-c","/bin/sh","operator"]
+
+
+

@@ -62,3 +62,16 @@ services:
      - 127.0.0.1:13306:3306/tcp
     volumes:
      - mariadb-datadir:/var/lib/mysql
+
+  mini:
+    build:
+      context: .
+      dockerfile: Dockerfile.mini
+      args:
+        ROOT_PASSWD: "test"
+        http_proxy: "${http_proxy}"
+    # The image is tagged "latest-full" because the "latest" tag will point to a flattened image
+    image: oxyure/mini:latest-full
+    networks:
+      oxyure-net:
+          ipv4_address: "172.30.0.200"
