@@ -1,8 +1,15 @@
-# Base Alpine + OpenRC
+# Build all images in the repository
 #
-# base:       /sbin/init as entrypoint
-# base-sh:    /bin/sh as entrypoint
-# mariadb:    MariaDB server, /sbin/init as entrypoint
+# # Base Alpine + OpenRC # #
+#
+# base:       * ["/sbin/init"]
+# base-sh:    * ["/bin/sh"]
+# mariadb:    MariaDB server ["/entrypoint.sh"]
+# mini:       Busybox + musl + Tini ["/sbin/tini","/bin/su","-l","-c","/bin/sh","operator"] (no OpenRC, no APK)
+#
+# # From scrath ##
+#
+# busybox     Busybox 1.28.0 + Musl 1.1.18 ["/bin/sh"]
 
 version: "3.4"
 
