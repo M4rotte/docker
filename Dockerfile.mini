@@ -34,6 +34,8 @@ COPY files/etc/motd /etc/motd
 COPY files/etc/passwd /etc/passwd
 COPY files/etc/group /etc/group
 COPY files/etc/shadow /etc/shadow
+COPY files/etc/shells /etc/shells
+
 RUN chmod 0640 /etc/shadow && chown root:shadow /etc/shadow &&\
     sed -i -e "s/{build_date}/$(date)/" \
            -e "s/{build_host}/$(uname -rs)/" /etc/motd

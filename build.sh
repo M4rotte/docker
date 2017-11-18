@@ -2,10 +2,17 @@
 
 # Build images.
 
-# The first two arguments are prepended to the `docker-compose build` command argument array.
-
+# Arguments are prepended to the `docker-compose build` command argument array
+# (before the service name)
+#
+# Possible values are:
+#    --force-rm              Always remove intermediate containers.
+#    --no-cache              Do not use cache when building the image.
+#    --pull                  Always attempt to pull a newer version of the image.
+#    --build-arg key=val     Set build-time variables for one service.
+    
 HUB_ID="oxyure"
-SERVICES="base base-sh mariadb mini"
+SERVICES="base base-sh mariadb mini busybox"
 
 function prune_docker {
     echo -e "\n  ### Do some cleaning…\n"
@@ -21,12 +28,12 @@ function flatten {
     docker run -d --name "$RANDNAME" "$HUB_ID/$1:latest-full"
     docker stop "$RANDNAME"
     docker export -o "/tmp/$RANDNAME.tar" "$RANDNAME"
-    cat "/tmp/$RANDNAME.tar" | docker import \
-                              --change 'WORKDIR /' \
-                              --change 'USER root' \
-                              --change 'ENTRYPOINT ["/sbin/tini","/bin/su","-l","-c","/bin/sh","operator"]' \
-                              --message 'Oxyure’s Docker Minimal Image' \
-                              - "$HUB_ID/$1:latest"
+    docker import \
+       --change 'WORKDIR /' \
+       --change 'USER root' \
+       --change 'ENTRYPOINT ["/sbin/tini","/bin/su","-l","-c","/bin/sh","operator"]' \
+       --message "/tmp/$RANDNAME.tar" \
+       "/tmp/$RANDNAME.tar" "$HUB_ID/$1:latest"
     rm "/tmp/$RANDNAME.tar"
     docker rm "$RANDNAME"
     docker rmi "$HUB_ID/$1:latest-full"
@@ -35,7 +42,8 @@ function flatten {
 for service in ${SERVICES}; do
 
     echo -e "\n  ### Building image \"${service}\"\n"
-    docker-compose build $1 $2 ${service}
+    echo -e "docker-compose build $@ ${service}\n"
+    docker-compose build $@ ${service}
 
 done
 

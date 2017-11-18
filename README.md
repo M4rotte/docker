@@ -34,7 +34,7 @@ MariaDB root password must be provided at run-time if /var/lib/mysql is not alre
 
 ### mini
 
-This is a stripped down Alpine with a proper PID 1 process. Basically: Busybox + Tini. The size (after flattenization) is 1.42MB.
+This is a stripped down Alpine with a proper PID 1 process. Basically: Busybox + musl + Tini. The size (after flattenization) is 1.42MB.
 
 ## Docker version
 

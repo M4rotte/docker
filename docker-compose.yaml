@@ -75,3 +75,12 @@ services:
     networks:
       oxyure-net:
           ipv4_address: "172.30.0.200"
+
+  busybox:
+    build:
+      context: .
+      dockerfile: Dockerfile.busybox
+    image: oxyure/busybox:latest
+    networks:
+      oxyure-net:
+          ipv4_address: "172.30.0.210"
