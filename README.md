@@ -36,6 +36,16 @@ MariaDB root password must be provided at run-time if /var/lib/mysql is not alre
 
 This is a stripped down Alpine with a proper PID 1 process. Basically: Busybox + musl + Tini. The size (after flattenization) is 1.42MB.
 
+### busybox
+
+Image create from scratch with Busybox 1.28.0 (from source) and Musl 1.1.18 (Debian sid binary)
+
+ - https://wiki.musl-libc.org/building-busybox.html
+ - https://github.com/sabotage-linux/kernel-headers
+ - `$ make CC="musl-gcc" CFLAGS="-I/opt/package/usr/include -Os"`
+
+Many of the Busybox components which are useless inside a container have been removed. There is no init daemon.
+
 ## Docker version
 
 I currently use:
