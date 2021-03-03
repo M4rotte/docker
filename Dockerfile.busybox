@@ -3,7 +3,7 @@ LABEL com.oxyure.vendor="United Microbiotas" \
       maintainer="stef@oxyure.com" \
       description="Busybox + Musl"
       
-ADD rootfs/busybox-1.28.0.xz /
+ADD rootfs/busybox-1.34.0.xz /
 ENTRYPOINT ["/bin/sh"]
 
 
